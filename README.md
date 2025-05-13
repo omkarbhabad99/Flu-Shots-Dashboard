@@ -1,114 +1,99 @@
-````markdown
-<!--
-  🩺 Flu Shots Dashboard — SQL + Tableau Healthcare Analytics
--->
+🩺 **Flu Shots Dashboard — SQL + Tableau Healthcare Analytics Project**
 
-<p align="center">
-  <img src="Tableau output/Dashboard 1.png" alt="Flu Shots Dashboard Preview" width="600"/>
-</p>
-
-# 🩺 Flu Shots Dashboard
-
-An end-to-end Healthcare Analytics project that:
-
-- 🔍 **Analyzes 2012 flu-shot compliance** by age, race, and county  
-- 📈 Builds a **running-total** chart of vaccinations over the year  
-- 👥 Produces a **patient-level list** for follow-up outreach  
-- 🗺️ Renders an **interactive county map** of coverage  
-- 🎯 Offers **dynamic filters** for deep dives  
+This project builds a fully interactive Tableau dashboard that visualizes flu-shot compliance across patient demographics using SQL for data extraction and transformation. The goal is to provide healthcare teams with actionable insights on vaccination coverage by age, race, and location.
 
 ---
 
-## 🚀 Features & Workflow
+## 📊 Dashboard Features
 
-1. **Data Extraction & Cleaning**  
-   - Identify **active patients** (alive, ≥6 mo old, had ≥1 encounter in 2012)  
-   - Pull **earliest flu-shot date** per patient  
-   - Flag compliance with a binary column (`1 = shot received`, `0 = no shot`)
+1. **Overall & Stratified Compliance**
 
-2. **SQL Query Logic**  
-   ```sql
-   -- Flu-Shot Compliance for 2012
-   WITH active_patients AS (
-     SELECT DISTINCT patient
-     FROM encounters AS e
-     JOIN patients AS pat ON e.patient = pat.id
-     WHERE start BETWEEN '2012-01-01 00:00'  AND '2012-12-31 11:59'
-       AND pat.deathdate IS NULL
-       AND EXTRACT(MONTH FROM AGE('2022-12-31', pat.birthdate)) >= 6
-   ),
-   flu_shot_2012 AS (
-     SELECT patient,
-            MIN(date) AS first_time_shot
-     FROM immunizations
-     WHERE code = '140'
-       AND date BETWEEN '2012-01-01 00:00' AND '2012-12-31 11:59'
-     GROUP BY patient
-   )
-   SELECT
-     pat.birthdate,
-     pat.race,
-     pat.county,
-     pat.id,
-     pat.first,
-     pat.last,
-     flu.first_time_shot,
-     CASE WHEN flu.patient IS NOT NULL THEN 1 ELSE 0 END AS flu_shot_2022
-   FROM patients AS pat
-   LEFT JOIN flu_shot_2012 AS flu
-     ON pat.id = flu.patient
-   WHERE pat.id IN (SELECT patient FROM active_patients);
-````
+   * Total % of patients receiving flu shots in 2022
+   * Breakdown by:
 
-3. **Dashboard Construction (Tableau)**
+     * **Age groups**
+     * **Race**
+     * **County** (on an interactive map)
 
-   * **Bar charts** for age & race compliance
-   * **Choropleth map** of county-level percentages
-   * **Dual-axis area chart** for cumulative shots
-   * **Patient list** with color-coded compliance
-   * **KPI badges** for overall compliance & total shots
+2. **Time Series Analytics**
 
-4. **Design Assets**
+   * Running total of flu shots administered, month by month (2022)
+   * Total number of flu shots given in 2022
 
-   * Icons created in **Canva**
-   * Consistent color palette (hex codes in Tableau format)
+3. **Patient Outreach List**
+
+   * Table of every patient with a binary flag (`1` = shot received, `0` = not received)
+   * Identifies those who need follow-up
+
+4. **Active-Patient Filter**
+
+   * Only includes patients alive and with an encounter in the specified window
+   * Excludes those < 6 months old at end of 2022
 
 ---
 
-## 🗂️ Repository Structure
+## 🛠️ Technologies Used
+
+* **PostgreSQL** – data cleaning, CTEs, and aggregation
+* **PGAdmin** – SQL execution & CSV export
+* **Tableau Public/Desktop** – interactive dashboards & visualizations
+* **Canva** – custom icon design
+
+---
+
+## 🧮 SQL Highlights
+
+* **CTEs** for:
+
+  * `active_patients`: filters on encounter dates, death-date nullity, and age ≥ 6 months
+  * `flu_shot_2012`: captures each patient’s first flu-shot date in 2022
+* **JOIN** strategy ensures 1:1 mapping—avoids row duplication
+* **CASE** expression to build a binary `flu_shot_2022` flag
+* **Extract/Age** functions to compute patient age at a reference date
+
+---
+
+## 📂 Project Structure
 
 ```
-📁 input_data/  
-   └── (raw CSVs for patients, encounters, immunizations)
-
-📄 output_data.csv           # Result of the SQL query  
-📄 flu_shots_query.txt       # SQL query (as above)  
-📁 Tableau output/  
-   └── 📄 Dashboard 1.png     # Final dashboard screenshot  
-
-📄 README.md                 # This document  
+├── input_data/                 # Raw CSVs (exported from SQL or sourced externally)
+├── output_data.csv             # Aggregated results from the main query
+├── flu_shots_query.txt         # Main SQL aggregation query (with CTEs)
+├── Tableau output/             # Exports/screenshots of the final dashboard
+│   └── Dashboard 1.png         # High-resolution dashboard image
+└── README.md                   # Project overview and usage instructions
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## 🧠 Key Learnings
 
-| Icon | Tool           | Purpose                          |
-| :--: | -------------- | -------------------------------- |
-|  🐘  | PostgreSQL     | Data storage & querying          |
-|  🖥️ | PGAdmin        | SQL IDE & CSV export             |
-|  📊  | Tableau Public | Dashboard design & interactivity |
-|  🎨  | Canva          | Icon design & branding           |
-
----
-
-## 📥 Getting Started
-
-1. **Run the SQL** in PGAdmin (or any SQL IDE) and export as `output_data.csv`.
-2. **Open Tableau Public** → *Connect* → *Text File* → Select `output_data.csv`.
-3. Recreate the **calculated fields** and **views** as outlined above.
-4. **Publish** to Tableau Public or save locally.
+* Designing robust SQL pipelines for healthcare data
+* Avoiding one-to-many pitfalls with subqueries and CTEs
+* Crafting dual-axis bar & area charts in Tableau
+* Building dynamic dashboards with parameterized filters
+* Translating binary flags into percentage metrics via averages
 
 ---
 
+## 📦 Getting Started
+
+1. **Run the SQL**
+
+   * Execute `flu_shots_query.txt` in PostgreSQL/PGAdmin
+   * Export the result to `output_data.csv`
+
+2. **Load into Tableau**
+
+   * **Tableau Public**: connect to `output_data.csv` as a text source
+   * **Tableau Desktop**: use “Custom SQL” to plug in the query directly
+
+3. **Open/Import**
+
+   * Open `Dashboard 1.png` under **Tableau output** for reference
+   * Recreate or tweak the visualizations in your own Tableau workbook
+
+> For a line-by-line walkthrough, see the original [YouTube tutorial](https://www.youtube.com/watch?v=ef4CAu-OwvM).
+
+---
 
