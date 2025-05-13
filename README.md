@@ -31,6 +31,8 @@ This project builds a fully interactive Tableau dashboard that visualizes flu-sh
    * Excludes those < 6 months old at end of 2022
 
 ---
+![Dashboard 1](https://github.com/user-attachments/assets/55d1baac-8e76-462e-9553-fdd804180c97)
+
 
 ## 🛠️ Technologies Used
 
@@ -92,8 +94,6 @@ This project builds a fully interactive Tableau dashboard that visualizes flu-sh
 
    * Open `Dashboard 1.png` under **Tableau output** for reference
    * Recreate or tweak the visualizations in your own Tableau workbook
-
-> For a line-by-line walkthrough, see the original [YouTube tutorial](https://www.youtube.com/watch?v=ef4CAu-OwvM).
 
 ---
 
